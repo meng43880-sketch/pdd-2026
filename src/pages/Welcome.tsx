@@ -17,7 +17,7 @@ export const Welcome: React.FC = () => {
       {/* Фон — фото */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/bg.jpg)' }}
+        style={{ backgroundImage: 'url(bg.jpg)' }}
       />
       {/* Лёгкое затемнение для читаемости */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/15 to-black/65" />

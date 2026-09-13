@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 import { useProgressStore } from './store/progressStore';
 import { Welcome } from './pages/Welcome';
@@ -30,7 +30,7 @@ const App: React.FC = () => {
 
   return (
     <MotionConfig reducedMotion={animations ? 'never' : 'always'}>
-    <BrowserRouter>
+    <HashRouter>
       <div className="mx-auto max-w-[560px] min-h-screen bg-bg">
         <Routes>
           <Route path="/" element={<Welcome />} />
@@ -47,7 +47,7 @@ const App: React.FC = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-    </BrowserRouter>
+    </HashRouter>
     </MotionConfig>
   );
 };
