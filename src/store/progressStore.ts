@@ -186,11 +186,7 @@ export const useProgressStore = create<ProgressState>()(
           };
         }),
 
-      isStageUnlocked: (stageId) => {
-        if (stageId === 1) return true;
-        const completed = get().completedStages;
-        return completed.includes(stageId - 1);
-      },
+      isStageUnlocked: () => true,
 
       isStageCompleted: (stageId) => get().completedStages.includes(stageId),
 

@@ -24,9 +24,6 @@ export const CourseMap: React.FC = () => {
 
   const getStatus = (stageId: number): StageStatus => {
     if (completedStages.includes(stageId)) return 'COMPLETED';
-    if (stageId === 1) return watchedVideos[stageId]?.length ? 'IN_PROGRESS' : 'AVAILABLE';
-    const prevCompleted = completedStages.includes(stageId - 1);
-    if (!prevCompleted) return 'LOCKED';
     const watched = watchedVideos[stageId]?.length ?? 0;
     const attempted = !!testResults[stageId];
     if (watched > 0 || attempted) return 'IN_PROGRESS';

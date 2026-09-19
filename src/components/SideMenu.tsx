@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home, BarChart3, Map, Settings, X, Shapes, GraduationCap, BookOpen } from 'lucide-react';
+import { Home, BarChart3, Map, Settings, X, Shapes, GraduationCap, BookOpen, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
 
 const items = [
   { path: '/', icon: Home, label: 'Главная' },
+  { path: '/account', icon: User, label: 'Личный кабинет' },
   { path: '/course', icon: Map, label: 'Этапы' },
   { path: '/signs', icon: Shapes, label: 'Знаки' },
   { path: '/exam', icon: GraduationCap, label: 'Экзамен' },

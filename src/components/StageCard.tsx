@@ -72,7 +72,7 @@ export const StageCard: React.FC<Props> = ({ stage, status, onClick }) => {
       <div className="flex-1 min-w-0">
         <div className="text-white font-semibold truncate">{stage.title}</div>
         <div className="text-muted text-xs mt-0.5 truncate">
-          {stage.videos.length} видео · {stage.questions.length} вопросов
+          {stage.videos.length} видео
         </div>
       </div>
 

@@ -18,11 +18,10 @@ export const StagePage: React.FC = () => {
 
   const watched = useProgressStore((s) => s.watchedVideos[stageId] ?? []);
   const markVideoWatched = useProgressStore((s) => s.markVideoWatched);
-  const isUnlocked = useProgressStore((s) => s.isStageUnlocked(stageId));
+  const completeStage = useProgressStore((s) => s.completeStage);
 
   const [currentVideoId, setCurrentVideoId] = useState(stage?.videos[0]?.id ?? '');
   const [infoOpen, setInfoOpen] = useState(false);
-  const [errorOpen, setErrorOpen] = useState(false);
 
   const currentVideo = useMemo(
     () => stage?.videos.find((v) => v.id === currentVideoId) ?? stage?.videos[0],
@@ -42,25 +41,10 @@ export const StagePage: React.FC = () => {
     );
   }
 
-  if (!isUnlocked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="text-center space-y-3">
-          <div className="text-3xl">🔒</div>
-          <div className="text-white font-bold">Этап заблокирован</div>
-          <div className="text-muted text-sm">
-            Сначала пройди предыдущий этап.
-          </div>
-          <Button onClick={() => nav('/course')}>К карте курса</Button>
-        </div>
-      </div>
-    );
-  }
-
   const watchedInStage = watched.length;
   const totalInStage = stage.videos.length;
-  const allWatched = watchedInStage >= totalInStage;
   const stagePercent = Math.round((watchedInStage / totalInStage) * 100);
+  const nextStage = getStage(stage.id + 1);
 
   const handleSelect = (v: typeof stage.videos[number]) => {
     setCurrentVideoId(v.id);
@@ -77,12 +61,14 @@ export const StagePage: React.FC = () => {
     markVideoWatched(stage.id, currentVideo.id);
   };
 
-  const goToQuiz = () => {
-    if (!allWatched) {
-      setErrorOpen(true);
-      return;
+  const handleNext = () => {
+    completeStage(stage.id);
+    telegram.haptic('success');
+    if (nextStage) {
+      nav(`/stage/${nextStage.id}`);
+    } else {
+      nav('/course');
     }
-    nav(`/quiz/${stage.id}`);
   };
 
   return (
@@ -171,20 +157,12 @@ export const StagePage: React.FC = () => {
 
       {/* Bottom CTA */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] p-4 bg-gradient-to-t from-bg via-bg to-transparent">
-        <Button
-          variant="cta"
-          size="lg"
-          full
-          disabled={!allWatched}
-          onClick={goToQuiz}
-        >
-          Я всё посмотрел!
+        <Button variant="cta" size="lg" full onClick={handleNext}>
+          {nextStage ? 'Следующий этап →' : 'К карте курса'}
         </Button>
-        {!allWatched && (
-          <div className="text-center text-muted text-xs mt-2">
-            Посмотри все {totalInStage} видео, чтобы перейти к тесту
-          </div>
-        )}
+        <div className="text-center text-muted text-xs mt-2">
+          Следующий этап откроется сразу — тестов нет
+        </div>
       </div>
 
       <Modal open={infoOpen} onClose={() => setInfoOpen(false)}>
@@ -194,22 +172,10 @@ export const StagePage: React.FC = () => {
           </div>
           <div className="text-muted text-sm">{stage.description}</div>
           <div className="text-muted text-xs">
-            Видео: {totalInStage} · Вопросов: {stage.questions.length}
+            Видео: {totalInStage}
           </div>
           <Button variant="ghost" full onClick={() => setInfoOpen(false)}>
             Понятно
-          </Button>
-        </div>
-      </Modal>
-
-      <Modal open={errorOpen} onClose={() => setErrorOpen(false)}>
-        <div className="space-y-3 text-center">
-          <div className="text-white font-bold">Ещё не всё просмотрено</div>
-          <div className="text-muted text-sm">
-            Осталось {totalInStage - watchedInStage} видео. Посмотри их, чтобы перейти к тесту.
-          </div>
-          <Button variant="primary" full onClick={() => setErrorOpen(false)}>
-            Хорошо
           </Button>
         </div>
       </Modal>
