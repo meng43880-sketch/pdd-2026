@@ -1,5 +1,37 @@
 import { create } from 'zustand';
-import { fetchAccess, payAccess, type AccessInfo, type Tariff } from '../services/api';
+import { fetchAccess, payAccess, getUserId, type AccessInfo, type Tariff } from '../services/api';
+
+// Локальная «заглушка» оплаты: доступ выдаётся мгновенно и переживает перезагрузку
+// даже без связи с бэкендом (демо-режим оплаты).
+const GRANT_KEY = 'pdd_access_grant_v1';
+
+interface LocalGrant {
+  paid: true;
+  tariff: Tariff;
+  price: number;
+  purchase_date: string;
+  user_id: number | null;
+}
+
+function readGrant(): LocalGrant | null {
+  try {
+    const raw = localStorage.getItem(GRANT_KEY);
+    if (!raw) return null;
+    const g = JSON.parse(raw) as LocalGrant;
+    if (!g || g.paid !== true) return null;
+    return g;
+  } catch {
+    return null;
+  }
+}
+
+function writeGrant(g: LocalGrant): void {
+  try {
+    localStorage.setItem(GRANT_KEY, JSON.stringify(g));
+  } catch {
+    // ignore
+  }
+}
 
 export type AccessStatus = 'checking' | 'paid' | 'unpaid' | 'error';
 
@@ -68,9 +100,41 @@ export const useAccessStore = create<AccessState>((set, get) => {
       set({ status: 'checking', error: '' });
       try {
         const data = await fetchAccess();
-        set(apply(get(), data));
+        if (data.is_paid) {
+          set(apply(get(), data));
+          return;
+        }
+        const grant = readGrant();
+        if (grant) {
+          // Бэкенд говорит «не оплачено», но на этом устройстве оплата уже активирована
+          set({
+            ...apply(get(), data),
+            status: 'paid',
+            paid: true,
+            tariff: grant.tariff,
+            price: grant.price,
+            purchase_date: grant.purchase_date,
+            user_id: grant.user_id ?? data.user_id,
+            error: '',
+          });
+        } else {
+          set({ ...apply(get(), data), status: 'unpaid', paid: false, error: '' });
+        }
       } catch (e) {
-        set({ status: 'error', error: e instanceof Error ? e.message : 'Не удалось проверить доступ' });
+        const grant = readGrant();
+        if (grant) {
+          set({
+            status: 'paid',
+            paid: true,
+            tariff: grant.tariff,
+            price: grant.price,
+            purchase_date: grant.purchase_date,
+            user_id: grant.user_id ?? get().user_id,
+            error: '',
+          });
+        } else {
+          set({ status: 'error', error: e instanceof Error ? e.message : 'Не удалось проверить доступ' });
+        }
       }
     },
 
@@ -79,14 +143,33 @@ export const useAccessStore = create<AccessState>((set, get) => {
         set({ status: 'paid', paid: true, tariff, price: tariff === 'premium' ? get().premium_price : get().standard_price });
         return true;
       }
+      // Демо-оплата: открываем доступ сразу, не дожидаясь ответа бэкенда.
+      const price = tariff === 'premium' ? get().premium_price : get().standard_price;
+      const grant: LocalGrant = {
+        paid: true,
+        tariff,
+        price,
+        purchase_date: new Date().toISOString(),
+        user_id: getUserId() ?? null,
+      };
+      writeGrant(grant);
+      set({
+        status: 'paid',
+        paid: true,
+        tariff,
+        price,
+        purchase_date: grant.purchase_date,
+        user_id: grant.user_id ?? get().user_id,
+        error: '',
+      });
+      // Бэкенд синхронизируем в фоне — его сбой не отменяет выданный доступ.
       try {
         const data = await payAccess(tariff);
         set(apply(get(), data));
-        return data.is_paid;
-      } catch (e) {
-        set({ status: 'error', error: e instanceof Error ? e.message : 'Оплата не прошла' });
-        return false;
+      } catch {
+        // ignore: доступ уже выдан локально
       }
+      return true;
     },
 
     setUnavailable: () => set({ status: 'error', error: 'Не удалось проверить доступ' }),

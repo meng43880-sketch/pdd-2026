@@ -14,7 +14,10 @@ export const BottomNavigation: React.FC = () => {
   const nav = useNavigate();
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] px-4 pb-3 pt-2 z-40">
+    <nav
+      style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] px-4 pt-2 z-40"
+    >
       <div className="glass rounded-3xl border border-white/5 flex items-center justify-around px-2 py-2">
         {tabs.map((t) => {
           const Icon = t.icon;

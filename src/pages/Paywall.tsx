@@ -40,18 +40,21 @@ export const Paywall: React.FC = () => {
 
   if (status === 'paid') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-5 text-center gap-3">
-        <div className="w-16 h-16 rounded-3xl bg-success/20 flex items-center justify-center">
-          <Check size={32} className="text-success" />
+      <>
+        <div className="min-h-screen flex flex-col items-center justify-center px-5 text-center gap-3">
+          <div className="w-16 h-16 rounded-3xl bg-success/20 flex items-center justify-center">
+            <Check size={32} className="text-success" />
+          </div>
+          <div className="text-2xl font-black">Доступ уже активен</div>
+          <div className="text-muted text-sm">Твой курс оплачен, можно начинать!</div>
+          <div className="mt-4 w-full max-w-[320px]">
+            <Button variant="success" size="lg" full onClick={() => nav('/')}>
+              Открыть курс
+            </Button>
+          </div>
         </div>
-        <div className="text-2xl font-black">Доступ уже активен</div>
-        <div className="text-muted text-sm">Твой курс оплачен, можно начинать!</div>
-        <div className="mt-4 w-full max-w-[320px]">
-          <Button variant="success" size="lg" full onClick={() => nav('/')}>
-            Открыть курс
-          </Button>
-        </div>
-      </div>
+        <SuccessModal open={success} onClose={() => setSuccess(false)} onDone={() => nav('/')} />
+      </>
     );
   }
 
@@ -173,32 +176,36 @@ export const Paywall: React.FC = () => {
         </div>
       </div>
 
-      <Modal open={success} onClose={() => setSuccess(false)}>
-        <div className="relative text-center">
-          <div className="pointer-events-none absolute inset-0">
-            <Confetti trigger={success} />
-          </div>
-          <div className="w-16 h-16 mx-auto rounded-3xl bg-success/20 flex items-center justify-center">
-            <Check size={30} className="text-success" />
-          </div>
-          <div className="text-2xl font-black text-white mt-4">Оплачено!</div>
-          <div className="text-muted text-sm mt-2 leading-relaxed">
-            Деньги списаны (демо-заглушка).<br />
-            Доступ к курсу активирован. Можно начинать обучение!
-          </div>
-          <div className="mt-5 space-y-2">
-            <Button variant="success" size="lg" full onClick={() => nav('/')}>
-              Начать обучение
-            </Button>
-            <button onClick={() => setSuccess(false)} className="text-muted text-sm py-1 w-full">
-              Закрыть
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <SuccessModal open={success} onClose={() => setSuccess(false)} onDone={() => nav('/')} />
     </div>
   );
 };
+
+const SuccessModal: React.FC<{ open: boolean; onClose: () => void; onDone: () => void }> = ({ open, onClose, onDone }) => (
+  <Modal open={open} onClose={onClose}>
+    <div className="relative text-center">
+      <div className="pointer-events-none absolute inset-0">
+        <Confetti trigger={open} />
+      </div>
+      <div className="w-16 h-16 mx-auto rounded-3xl bg-success/20 flex items-center justify-center">
+        <Check size={30} className="text-success" />
+      </div>
+      <div className="text-2xl font-black text-white mt-4">Оплачено!</div>
+      <div className="text-muted text-sm mt-2 leading-relaxed">
+        Деньги списаны (демо-заглушка).<br />
+        Доступ к курсу активирован. Можно начинать обучение!
+      </div>
+      <div className="mt-5 space-y-2">
+        <Button variant="success" size="lg" full onClick={onDone}>
+          Начать обучение
+        </Button>
+        <button onClick={onClose} className="text-muted text-sm py-1 w-full">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </Modal>
+);
 
 // Небольшая сводка, используемая в личном кабинете
 export const AccessSummary: React.FC = () => {

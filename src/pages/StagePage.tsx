@@ -156,7 +156,14 @@ export const StagePage: React.FC = () => {
       </div>
 
       {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] p-4 bg-gradient-to-t from-bg via-bg to-transparent">
+      <div
+        style={{
+          paddingTop: '1rem',
+          paddingInline: '1rem',
+          paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))',
+        }}
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] bg-gradient-to-t from-bg via-bg to-transparent"
+      >
         <Button variant="cta" size="lg" full onClick={handleNext}>
           {nextStage ? 'Следующий этап →' : 'К карте курса'}
         </Button>

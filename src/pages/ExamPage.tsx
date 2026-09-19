@@ -311,7 +311,14 @@ export const ExamPage: React.FC = () => {
       </div>
 
       {revealed && (
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] p-4 bg-gradient-to-t from-[#050c16] via-[#050c16] to-transparent">
+        <div
+          style={{
+            paddingTop: '1rem',
+            paddingInline: '1rem',
+            paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))',
+          }}
+          className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] bg-gradient-to-t from-[#050c16] via-[#050c16] to-transparent"
+        >
           <Button variant="primary" size="lg" full onClick={handleNext}>
             {index + 1 >= total ? 'Завершить' : 'Дальше'}
           </Button>

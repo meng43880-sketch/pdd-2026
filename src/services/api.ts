@@ -29,7 +29,7 @@ function getInitData(): string {
   }
 }
 
-function getUserId(): number | undefined {
+export function getUserId(): number | undefined {
   const tg = telegram.getUser();
   if (tg) return tg.id;
   const dev = import.meta.env.VITE_DEV_USER_ID;
